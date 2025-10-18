@@ -101,7 +101,7 @@ variant_stats = processor.get_variant_stats()
 ## Структура проекта
 
 ```
-bioinformatics-toolkit/
+bioformats-holygophers/
 ├── src/
 │   └── formats/
 │       ├── fasta.py
