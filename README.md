@@ -1,139 +1,162 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/I6I1ViQv)
-# Bioinformatics Cool - FASTA Module
+# Bioinformatics Cool
 
 [![Python 3.7+](https://img.shields.io/badge/Python-3.7%2B-blue)](https://python.org)
 
-## О проекте
+Унифицированный процессор для биологических форматов файлов: FASTA, FASTQ, SAM, VCF.
 
-Bioinformatics Cool - это набор инструментов для обработки биологических данных, разработанный в рамках учебного проекта.
+## Возможности
 
-### Поддерживаемые форматы
+### Модуль FASTA
+- Подсчет последовательностей и статистика
+- Расчет средней длины последовательностей
+- Эффективные генераторы для больших файлов
+- Валидация формата и фильтрация
+- Поддержка сжатых файлов (.gz)
 
--  FASTA - анализ последовательностей
--  FASTQ - анализ чтений
--  SAM - анализ выравниваний
--  VCF - анализ вариантов
+### Модуль FASTQ
+- Анализ качества чтений
+- Статистика последовательностей
+- Обработка quality scores
+- Фильтрация по порогам качества
+
+### Модуль SAM
+- Статистика выравниваний
+- Анализ маппинга чтений
+- Парсинг CIGAR строк
+- Поддержка BAM файлов
+
+### Модуль VCF
+- Анализ вариантов (variant calling)
+- Обработка генотипов
+- Фильтрация по метрикам качества
+- Поддержка аннотаций
+
+## Установка
+
+```bash
+git clone https://github.com/your-username/bioinformatics-toolkit
+cd bioinformatics-toolkit
+```
 
 ## Быстрый старт
 
-### Установка
-
+### Анализ FASTA
 ```bash
-# Клонируйте репозиторий
-git clone https://github.com/your-username/bioinformatics-toolkit
-cd bioinformatics-toolkit
-
-# (Опционально) Создайте виртуальное окружение
-python -m venv venv
-source venv/bin/activate  # Linux/MacOS
-# или
-venv\Scripts\activate     # Windows
-
-```
-### Демонстрация
-
-```bash
-# Запустите демонстрационную программу FASTA
 python examples/demo_fasta.py
+python tests/test_fasta.py
 ```
 
-### Тестирование
-
+### Анализ FASTQ
 ```bash
-# Запустите тесты FASTA модуля
-python tests/test_fasta.py
+python examples/demo_fastq.py
+python tests/test_fastq.py
+```
+
+### Анализ SAM
+```bash
+python examples/demo_sam.py
+python tests/test_sam.py
+```
+
+### Анализ VCF
+```bash
+python examples/demo_vcf.py
+python tests/test_vcf.py
 ```
 
 ## Использование
 
-### Командная строка
-
-```bash
-# Быстрый подсчет последовательностей
-python -c "from src.formats.fasta import count_sequences_fasta; print(count_sequences_fasta('file.fasta'))"
-
-# Быстрое получение средней длины
-python -c "from src.formats.fasta import average_length_fasta; print(average_length_fasta('file.fasta'))"
-```
-
 ### Python API
 
+#### FASTA
 ```python
 from src.formats.fasta import FastaProcessor
-
-# Создание процессора
 processor = FastaProcessor("sequences.fasta")
-
-# Основная статистика
 stats = processor.get_statistics()
 print(f"Количество последовательностей: {stats['sequence_count']}")
-print(f"Средняя длина: {stats['average_length']:.2f} bp")
-print(f"Общая длина: {stats['total_length']} bp")
+```
 
-# Итерация по последовательностям
-for header, sequence in processor.sequence_generator():
-    print(f"{header}: {len(sequence)} bp")
+#### FASTQ
+```python
+from src.formats.fastq import FastqProcessor
+processor = FastqProcessor("reads.fastq")
+quality_stats = processor.get_quality_stats()
+```
 
-# Фильтрация по длине
-filtered_sequences = processor.filter_sequences(min_length=100, max_length=1000)
-print(f"Найдено {len(filtered_sequences)} последовательностей от 100 до 1000 bp")
+#### SAM
+```python
+from src.formats.sam import SamProcessor
+processor = SamProcessor("alignments.sam")
+alignment_stats = processor.get_alignment_stats()
+```
+
+#### VCF
+```python
+from src.formats.vcf import VcfProcessor
+processor = VcfProcessor("variants.vcf")
+variant_stats = processor.get_variant_stats()
 ```
 
 ## Структура проекта
 
 ```
 bioinformatics-toolkit/
-├── src/                    # Исходный код
+├── src/
 │   └── formats/
-│       ├── fasta.py       # FASTA процессор
-│       ├── fastq.py       # FASTQ процессор (в разработке)
-│       ├── sam.py         # SAM процессор (в разработке)
-│       └── vcf.py         # VCF процессор (в разработке)
-├── tests/                  # Тесты
-│   └── test_fasta.py      # Тесты FASTA модуля
-├── examples/               # Демонстрационные программы
-│   └── demo_fasta.py      # Демо FASTA
-├── docs/                   # Документация
+│       ├── fasta.py
+│       ├── fastq.py
+│       ├── sam.py
+│       └── vcf.py
+├── tests/
+│   ├── test_fasta.py
+│   ├── test_fastq.py
+│   ├── test_sam.py
+│   └── test_vcf.py
+├── examples/
+│   ├── demo_fasta.py
+│   ├── demo_fastq.py
+│   ├── demo_sam.py
+│   └── demo_vcf.py
+├── docs/
 │   └── source/
-│       ├── conf.py        # Настройки Sphinx
-│       ├── index.rst      # Главная страница
-│       ├── modules.rst    # Документация модулей
-│       └── usage.rst      # Инструкции по использованию
-├── README.md              # Этот файл
-├── requirements.txt       # Зависимости
-└── .gitignore            # Игнорируемые файлы Git
+│       ├── conf.py
+│       ├── index.rst
+│       ├── modules.rst
+│       └── usage.rst
+├── README.md
+├── requirements.txt
+└── .gitignore
 ```
 
 ## Документация
 
-### Генерация документации
+Для генерации документации:
 
 ```bash
 cd docs
 sphinx-build -b html source build
 ```
 
-Откройте `docs/build/index.html` в браузере для просмотра документации.
-
-### Онлайн документация
-
-Документация включает:
-- API reference всех классов и методов
-- Примеры использования
-- Руководство по разработке
+Откройте `docs/build/index.html` в браузере.
 
 ## Тестирование
 
-Проект включает комплексные тесты:
+Запуск всех тестов:
 
 ```bash
-# Запуск всех тестов
-python tests/test_fasta.py
-
-# Тестирование отдельных компонентов
-python -c "from tests.test_fasta import TestFastaProcessor; t = TestFastaProcessor(); t.test_sequence_count()"
+python -m pytest tests/
 ```
 
+Или отдельных модулей:
+
+```bash
+python tests/test_fasta.py
+python tests/test_fastq.py
+python tests/test_sam.py
+python tests/test_vcf.py
+```
+---
 ## Команда разработки
 
 - Горожанкина П. - разработка FASTQ модуля
