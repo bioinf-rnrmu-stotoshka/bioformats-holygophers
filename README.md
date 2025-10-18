@@ -35,8 +35,8 @@
 ## Установка
 
 ```bash
-git clone https://github.com/your-username/bioinformatics-toolkit
-cd bioinformatics-toolkit
+git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
+cd bioformats-holygophers
 ```
 
 ## Быстрый старт
