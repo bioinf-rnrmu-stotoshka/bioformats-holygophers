@@ -2,7 +2,6 @@
 # Bioinformatics Toolkit - FASTA Module
 
 [![Python 3.7+](https://img.shields.io/badge/Python-3.7%2B-blue)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 Универсальный процессор для биологических форматов файлов. Данный репозиторий содержит модуль для работы с FASTA файлами.
 
@@ -31,3 +30,7 @@ python -m venv venv
 source venv/bin/activate  # Linux/MacOS
 # или
 venv\Scripts\activate     # Windows
+
+**### Демонстрация**
+# Запустите демонстрационную программу FASTA
+python examples/demo_fasta.py
