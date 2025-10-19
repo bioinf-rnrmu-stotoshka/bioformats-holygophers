@@ -51,7 +51,7 @@ python tests/test_fasta.py
 ```bash
 python examples/demo_fastq.py
 python tests/test_fastq.py
-
+```
 **Анализ качества чтений:**
 
 ![График качества FASTQ чтений](images/fastq-quality.png)
