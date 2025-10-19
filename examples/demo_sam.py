@@ -1,7 +1,7 @@
 from sam.py import Samreader
 
 def demosam():
-    samfile = "C:/Users/Asus/Desktop/test.sam"
+    samfile = "test_sam.sam"
     reader = Samreader(samfile)
 
     print("=== Заголовки SAM файла ===")
@@ -26,3 +26,4 @@ def demosam():
 
 if __name__ == "__main__":
     demosam()
+
