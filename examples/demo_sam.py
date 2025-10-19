@@ -1,11 +1,10 @@
 from sam.py import Samreader
 
 def demosam():
-    samfile = "example.sam"  
+    samfile = "C:/Users/Asus/Desktop/test.sam"
     reader = Samreader(samfile)
 
     print("=== Заголовки SAM файла ===")
-
     for _ in reader.read():
         pass
     headers = reader.getheader()
@@ -23,3 +22,7 @@ def demosam():
     unaligned = reader.filterlevels(0x4)
     for lvl in unaligned:
         print(f"{lvl['QNAME']} на {lvl['RNAME']} с флагом {lvl['FLAG']}")
+
+
+if __name__ == "__main__":
+    demosam()
