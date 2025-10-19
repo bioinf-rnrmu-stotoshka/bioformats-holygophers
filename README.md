@@ -51,6 +51,18 @@ python tests/test_fasta.py
 ```bash
 python examples/demo_fastq.py
 python tests/test_fastq.py
+
+**Анализ качества чтений:**
+
+![График качества FASTQ чтений](images/fastq-quality.png)
+
+**Содержание нуклеотидов:**
+
+![Содержание нуклеотидов по позициям](images/fastq-content.png)
+
+**Распределение длин последовательностей:**
+
+![Распределение длин ридов](images/fastq-length.png)
 ```
 
 ### Анализ SAM
