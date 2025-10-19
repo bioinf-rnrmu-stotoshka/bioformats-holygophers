@@ -1,7 +1,7 @@
 from vcf.py import Vcfreader
 
 def demo_vcf():
-    vcffile = "example.vcf"
+    vcffile = "test_vcf.vcf"
     reader = Vcfreader(vcffile)
 
     print("=== Заголовки VCF файла ===")
@@ -21,3 +21,4 @@ def demo_vcf():
     in_region = reader.variantsinregion(chrom, start, end)
     for var in in_region:
         print(f"{var['#CHROM']}:{var['POS']} {var['REF']}->{var['ALT']}")
+
