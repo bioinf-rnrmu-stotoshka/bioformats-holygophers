@@ -64,8 +64,8 @@ bioformats-holygophers/
 Клонируйте репозиторий:
 
 ```bash
-git clone <repository-url>
-cd bioinformatics-processor
+git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
+cd bioformats-holygophers
 ```
 
 Установите зависимости:
