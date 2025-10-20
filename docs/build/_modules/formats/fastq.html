@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="ru" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>formats.fastq &#8212; документация OOP 19.10.2025</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=a9962897"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=cd1d70c9"></script>
+    <link rel="index" title="Алфавитный указатель" href="../../genindex.html" />
+    <link rel="search" title="Поиск" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Исходный код formats.fastq</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;УСТАНАВЛИВАЕМ MATPLOTLIB...&quot;</span><span class="p">)</span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;matplotlib&quot;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ЗАПУСКАЕМ ОПТИМИЗИРОВАННЫЙ FASTQ АНАЛИЗАТОР...&quot;</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+<div class="viewcode-block" id="FastqReader">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FastqReader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Класс для чтения и анализа FASTQ файлов с оптимизацией памяти</span>
+<span class="sd">    Использует генераторы для работы с большими файлами</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_length</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_fastq_chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ГЕНЕРАТОР: читает FASTQ файл по одному риду за раз&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="c1"># Читаем 4 строки одного рида</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># Конец файла</span>
+                    <span class="k">break</span>
+                <span class="k">yield</span> <span class="n">lines</span>
+    
+<div class="viewcode-block" id="FastqReader.calculate_statistics">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.calculate_statistics">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Рассчитывает статистику используя генератор (память O(1))&quot;&quot;&quot;</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total_length</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fastq_chunks</span><span class="p">():</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">sequence_line</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Вторая строка - последовательность</span>
+            <span class="n">total_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequence_line</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span> <span class="o">=</span> <span class="n">count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_length</span> <span class="o">=</span> <span class="n">total_length</span>
+        <span class="k">return</span> <span class="n">count</span><span class="p">,</span> <span class="n">total_length</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.get_sequence_count">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.get_sequence_count">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sequence_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Возвращает количество последовательностей в файле&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_statistics</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.get_average_length">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.get_average_length">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Возвращает среднюю длину последовательностей&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_statistics</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_length</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_count</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.plot_per_base_quality">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.plot_per_base_quality">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_per_base_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;quality.png&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Строит график качества по позициям (Per Base Sequence Quality)&quot;&quot;&quot;</span>
+        <span class="n">quality_sums</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">quality_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">max_position</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fastq_chunks</span><span class="p">():</span>
+            <span class="n">quality_line</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># Четвертая строка - качество</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">quality_line</span><span class="p">):</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">-</span> <span class="mi">33</span>  <span class="c1"># Конвертируем в числовое качество</span>
+                <span class="n">quality_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">score</span>
+                <span class="n">quality_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">max_position</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_position</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        
+        <span class="c1"># Рассчитываем среднее качество для каждой позиции</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_position</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">avg_qualities</span> <span class="o">=</span> <span class="p">[</span><span class="n">quality_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">quality_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        
+        <span class="c1"># Создаем график</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">avg_qualities</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Качество последовательностей по позициям&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Позиция в риде (bp)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phred Quality Score&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сохранен: </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.plot_per_base_content">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.plot_per_base_content">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_per_base_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;content.png&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Строит график содержания нуклеотидов по позициям (Per Base Sequence Content)&quot;&quot;&quot;</span>
+        <span class="n">base_counts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> 
+                      <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)}</span>
+        <span class="n">total_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">max_position</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fastq_chunks</span><span class="p">():</span>
+            <span class="n">sequence_line</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Вторая строка - последовательность</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sequence_line</span><span class="p">):</span>
+                <span class="n">base_upper</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">base_upper</span> <span class="ow">in</span> <span class="n">base_counts</span><span class="p">:</span>
+                    <span class="n">base_counts</span><span class="p">[</span><span class="n">base_upper</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">total_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">max_position</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_position</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        
+        <span class="n">positions</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_position</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        
+        <span class="c1"># Строим линии для каждого нуклеотида</span>
+        <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">counts</span> <span class="ow">in</span> <span class="n">base_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">percentages</span> <span class="o">=</span> <span class="p">[</span><span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">total_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> 
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">percentages</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Содержание нуклеотидов по позициям&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Позиция в риде (bp)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Процент (%)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сохранен: </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.plot_sequence_length_distribution">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.plot_sequence_length_distribution">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_sequence_length_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;length.png&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Строит гистограмму распределения длин последовательностей&quot;&quot;&quot;</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fastq_chunks</span><span class="p">():</span>
+            <span class="n">sequence_line</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Вторая строка - последовательность</span>
+            <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequence_line</span><span class="p">))</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Распределение длин последовательностей&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Длина последовательности (bp)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Частота&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сохранен: </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FastqReader.generate_all_plots">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.FastqReader.generate_all_plots">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_all_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Генерирует все три графика качества&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Генерируем графики с оптимизацией памяти...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_per_base_quality</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_per_base_content</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_sequence_length_distribution</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ВСЕ ГРАФИКИ СОЗДАНЫ С ОПТИМИЗАЦИЕЙ ПАМЯТИ!&quot;</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="create_test_fastq">
+<a class="viewcode-back" href="../../modules.html#formats.fastq.create_test_fastq">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_test_fastq</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Создает тестовый FASTQ файл для демонстрации&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;СОЗДАЕМ ТЕСТОВЫЙ ФАЙЛ...&quot;</span><span class="p">)</span>
+    <span class="n">test_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="n">test_data</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;@read</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">test_data</span> <span class="o">+=</span> <span class="s2">&quot;ATCGATCGATCGATCGATCG</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># 20 bp</span>
+        <span class="n">test_data</span> <span class="o">+=</span> <span class="s2">&quot;+</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">test_data</span> <span class="o">+=</span> <span class="s2">&quot;IIIIIIIIIIIIIIIIIIII</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># Качество 40</span>
+    <span class="k">return</span> <span class="n">test_data</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ОПТИМИЗИРОВАННЫЙ FASTQ АНАЛИЗАТОР С ГЕНЕРАТОРАМИ!&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Создаем тестовый файл</span>
+    <span class="n">test_data</span> <span class="o">=</span> <span class="n">create_test_fastq</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;test.fastq&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+    
+    <span class="c1"># Анализируем</span>
+    <span class="n">analyzer</span> <span class="o">=</span> <span class="n">FastqReader</span><span class="p">(</span><span class="s2">&quot;test.fastq&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;РАССЧИТЫВАЕМ СТАТИСТИКУ...&quot;</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_sequence_count</span><span class="p">()</span>
+    <span class="n">avg_len</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_average_length</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; КОЛИЧЕСТВО ПОСЛЕДОВАТЕЛЬНОСТЕЙ: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; СРЕДНЯЯ ДЛИНА: </span><span class="si">{</span><span class="n">avg_len</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> bp&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ОБЩИЙ ОБЪЕМ ДАННЫХ: </span><span class="si">{</span><span class="n">count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">avg_len</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> bp&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> ГЕНЕРИРУЕМ ГРАФИКИ...&quot;</span><span class="p">)</span>
+    <span class="n">analyzer</span><span class="o">.</span><span class="n">generate_all_plots</span><span class="p">()</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> ГОТОВО! Оптимизированная версия готова для больших файлов!&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; ИСПОЛЬЗОВАНИЕ ПАМЯТИ: O(1) для статистики, O(max_length) для графиков!&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">OOP</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Навигация</h3>
+<p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Modules Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Код модуля</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Victoria Kalion, Pauline Gorozhankina, Anna Zubrilina.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
