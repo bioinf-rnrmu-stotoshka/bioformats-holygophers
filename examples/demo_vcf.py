@@ -1,24 +1,27 @@
 from vcf.py import Vcfreader
 
-def demo_vcf():
-    vcffile = "test_vcf.vcf"
-    reader = Vcfreader(vcffile)
+def demo_vcf_pandas():
+    vcf_path = "C:/Users/Asus/Desktop/test_vcf.vcf"
+    reader = Vcfreader(vcf_path)
+    reader.read()
 
-    print("=== Заголовки VCF файла ===")
-    for _ in reader.read():
-        pass
-    for line in reader.getheader():
+    print("VCF Заголовки:")
+    for line in reader.get_header():
         print(line)
 
-    print("\n=== Варианты с качеством >= 30 ===")
-    filtered = reader.filterbyquality(30)
-    for var in filtered:
-        print(f"{var['#CHROM']}:{var['POS']} {var['REF']}->{var['ALT']} QUAL={var['QUAL']}")
+    print("\nВсе варианты:")
+    print(reader.df[[reader.df.columns[0], 'POS', 'REF', 'ALT', 'QUAL', 'FILTER']])
 
-    chrom = 'chr1'
-    start, end = 100000, 200000
-    print(f"\n=== Варианты на {chrom} в диапазоне {start}-{end} ===")
-    in_region = reader.variantsinregion(chrom, start, end)
-    for var in in_region:
-        print(f"{var['#CHROM']}:{var['POS']} {var['REF']}->{var['ALT']}")
+    print("\nФильтрация по качеству (QUAL >= 0):")
+    filtered = reader.filter_by_quality(0)
+    print(filtered[[reader.df.columns[0], 'POS', 'REF', 'ALT', 'QUAL']])
 
+    chrom = "20"
+    start, end = 1000000, 2000000
+    print(f"\nВарианты на хромосоме {chrom} в диапазоне {start}-{end}:")
+    region = reader.variants_in_region(chrom, start, end)
+    print(region[[region.columns[0], 'POS', 'REF', 'ALT', 'QUAL']])
+
+
+if __name__ == "__main__":
+    demo_vcf_pandas()
