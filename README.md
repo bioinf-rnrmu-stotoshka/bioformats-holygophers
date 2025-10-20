@@ -78,8 +78,7 @@ bioformats-holygophers/
 │       ├── modules.rst
 │       └── usage.rst
 ├── README.md
-├── requirements.txt
-
+└── requirements.txt
 ```
 
 ## Документация
