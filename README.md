@@ -32,28 +32,7 @@
 - Фильтрация по метрикам качества
 - Поддержка аннотаций
 
-## Установка
-
-```bash
-git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
-cd bioformats-holygophers
-```
----
-**Анализ качества чтений:**
-
-![График качества FASTQ чтений](images/fastq-quality.png)
-
-**Содержание нуклеотидов:**
-
-![Содержание нуклеотидов по позициям](images/fastq-content.png)
-
-**Распределение длин последовательностей:**
-
-![Распределение длин ридов](images/fastq-length.png)
-```
-
 ## Структура проекта
-
 ```
 bioformats-holygophers/
 ├── src/
@@ -80,6 +59,25 @@ bioformats-holygophers/
 │       └── usage.rst
 ├── README.md
 └── requirements.txt
+```
+## Установка
+
+```bash
+git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
+cd bioformats-holygophers
+```
+---
+**Анализ качества чтений:**
+
+![График качества FASTQ чтений](images/fastq-quality.png)
+
+**Содержание нуклеотидов:**
+
+![Содержание нуклеотидов по позициям](images/fastq-content.png)
+
+**Распределение длин последовательностей:**
+
+![Распределение длин ридов](images/fastq-length.png)
 ```
 
 ## Документация
