@@ -38,20 +38,6 @@
 git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
 cd bioformats-holygophers
 ```
-
-## Быстрый старт
-
-### Анализ FASTA
-```bash
-python examples/demo_fasta.py
-python tests/test_fasta.py
-```
-
-### Анализ FASTQ
-```bash
-python examples/demo_fastq.py
-python tests/test_fastq.py
-```
 **Анализ качества чтений:**
 
 ![График качества FASTQ чтений](images/fastq-quality.png)
