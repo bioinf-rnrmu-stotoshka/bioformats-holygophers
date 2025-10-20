@@ -61,10 +61,19 @@ bioformats-holygophers/
 └── requirements.txt
 ```
 ## Установка
+Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
-cd bioformats-holygophers
+git clone <repository-url>
+cd bioinformatics-processor
+
+Установите зависимости:
+```bash
+pip install -r requirements.txt
+
+Запустите демонстрационную программу:
+```bash
+python examples/demo.py
 ```
 ---
 **Анализ качества чтений:**
