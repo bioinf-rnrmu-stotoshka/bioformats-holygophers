@@ -77,39 +77,6 @@ python examples/demo_vcf.py
 python tests/test_vcf.py
 ```
 
-## Использование
-
-### Python API
-
-#### FASTA
-```python
-from src.formats.fasta import FastaProcessor
-processor = FastaProcessor("sequences.fasta")
-stats = processor.get_statistics()
-print(f"Количество последовательностей: {stats['sequence_count']}")
-```
-
-#### FASTQ
-```python
-from src.formats.fastq import FastqProcessor
-processor = FastqProcessor("reads.fastq")
-quality_stats = processor.get_quality_stats()
-```
-
-#### SAM
-```python
-from src.formats.sam import SamProcessor
-processor = SamProcessor("alignments.sam")
-alignment_stats = processor.get_alignment_stats()
-```
-
-#### VCF
-```python
-from src.formats.vcf import VcfProcessor
-processor = VcfProcessor("variants.vcf")
-variant_stats = processor.get_variant_stats()
-```
-
 ## Структура проекта
 
 ```
@@ -138,7 +105,7 @@ bioformats-holygophers/
 │       └── usage.rst
 ├── README.md
 ├── requirements.txt
-└── .gitignore
+
 ```
 
 ## Документация
