@@ -1,7 +1,7 @@
 from vcf.py import Vcfreader
 
 def demo_vcf_pandas():
-    vcf_path = "C:/Users/Asus/Desktop/test_vcf.vcf"
+    vcf_path = "test_vcf.vcf"
     reader = Vcfreader(vcf_path)
     reader.read()
 
@@ -25,3 +25,4 @@ def demo_vcf_pandas():
 
 if __name__ == "__main__":
     demo_vcf_pandas()
+
