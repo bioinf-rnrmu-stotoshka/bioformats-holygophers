@@ -65,18 +65,6 @@ python tests/test_fastq.py
 ![Распределение длин ридов](images/fastq-length.png)
 ```
 
-### Анализ SAM
-```bash
-python examples/demo_sam.py
-python tests/test_sam.py
-```
-
-### Анализ VCF
-```bash
-python examples/demo_vcf.py
-python tests/test_vcf.py
-```
-
 ## Структура проекта
 
 ```
