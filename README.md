@@ -38,6 +38,7 @@
 git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-holygophers
 cd bioformats-holygophers
 ```
+---
 **Анализ качества чтений:**
 
 ![График качества FASTQ чтений](images/fastq-quality.png)
