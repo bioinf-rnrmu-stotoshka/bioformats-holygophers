@@ -1,31 +1,38 @@
+import pandas as pd
+
 class Vcfreader:
     def __init__(self, filename):
         self.filename = filename
-        self.header = []
-        self.columns = []
-        self.variants = []
+        self.header_lines = []
+        self.df = None
 
     def read(self):
         with open(self.filename, 'r') as f:
+            header = []
             for line in f:
-                line = line.strip()
                 if line.startswith('##'):
-                    self.header.append(line)
+                    header.append(line.strip())
                 elif line.startswith('#CHROM'):
-                    self.columns = line.lstrip('#').split('\t')
-                else:
-                    fields = line.split('\t')
-                    variant = dict(zip(self.columns, fields))
-                    variant['POS'] = int(variant['POS'])
-                    variant['QUAL'] = float(variant['QUAL']) if variant['QUAL'] != '.' else 0.0
-                    self.variants.append(variant)
-                    yield variant
+                    columns = line.strip()[1:].split('\t')
+                    break
+            self.df = pd.read_csv(
+                self.filename,
+                comment='#',
+                sep='\t',
+                names=columns,
+                dtype={columns[0]: str}
+            )
+            self.header_lines = header
+
+            self.df['POS'] = self.df['POS'].astype(int)
+            self.df['QUAL'] = pd.to_numeric(self.df['QUAL'], errors='coerce')  # . заменяем на NaN
 
     def get_header(self):
-        return self.header
+        return self.header_lines
 
-    def filter_by_quality(self, minqual):
-        return (v for v in self.variants if v['QUAL'] >= minqual)
+    def filter_by_quality(self, min_qual):
+        return self.df[self.df['QUAL'] >= min_qual]
 
     def variants_in_region(self, chrom, start, end):
-        return (v for v in self.variants if v['#CHROM'] == chrom and start <= v['POS'] <= end)
+        region_df = self.df[(self.df[self.df.columns[0]] == chrom) & (self.df['POS'] >= start) & (self.df['POS'] <= end)]
+        return region_df
