@@ -66,10 +66,12 @@ bioformats-holygophers/
 ```bash
 git clone <repository-url>
 cd bioinformatics-processor
+```
 
 Установите зависимости:
 ```bash
 pip install -r requirements.txt
+```
 
 Запустите демонстрационную программу:
 ```bash
