@@ -243,6 +243,19 @@ def average_length_fasta(filepath: str) -> float:
 
 
 if __name__ == "__main__":
-    # Demo code
-    print("FASTA Processor Demo")
-    print("This is a module - import it in other Python files!")
+    # Код который выполнится только при прямом запуске файла
+    print("🔬 FASTA Processor - Direct Execution")
+    
+    # Создаем тестовые данные
+    test_data = """>test_sequence_1
+ATCGATCG
+>test_sequence_2
+GGGCCCAAA"""
+    
+    with open('test_direct.fasta', 'w') as f:
+        f.write(test_data)
+    
+    # Тестируем наш класс
+    processor = FastaProcessor('test_direct.fasta')
+    stats = processor.get_statistics()
+    print(f"Результат: {stats}")
